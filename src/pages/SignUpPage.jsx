@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BASE_URL } from '../utils/api'
 
 function SignUpPage({ onSwitchToLogin, onClose, onSignUpSuccess }) {
   const [email, setEmail] = useState('')
@@ -9,7 +10,7 @@ function SignUpPage({ onSwitchToLogin, onClose, onSignUpSuccess }) {
     e.preventDefault()
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/signup', {
+      const response = await fetch(`${BASE_URL}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,7 +25,7 @@ function SignUpPage({ onSwitchToLogin, onClose, onSignUpSuccess }) {
       }
 
       alert('인증 코드가 이메일로 발송되었습니다.')
-      onSignUpSuccess(email)   // ← 인증 페이지로 이메일과 함께 이동
+      onSignUpSuccess(email)
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
@@ -32,14 +33,15 @@ function SignUpPage({ onSwitchToLogin, onClose, onSignUpSuccess }) {
   }
 
   return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="relative w-full max-w-sm rounded-2xl bg-white p-8 shadow-md">   {/* relative 추가 */}
-          <button
-              onClick={onClose}
-              className="absolute left-4 top-4 text-2xl font-bold text-red-400 hover:text-red-600"
-          >
-            &times;
-          </button>
+      <div className="relative flex min-h-screen items-center justify-center bg-gray-50">
+        <button
+            onClick={onClose}
+            className="absolute left-4 top-4 text-2xl text-gray-400 hover:text-gray-600"
+        >
+          &times;
+        </button>
+
+        <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-md">
           <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
             회원가입
           </h1>

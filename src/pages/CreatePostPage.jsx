@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { authFetch } from '../utils/api'
+import { authFetch, BASE_URL } from '../utils/api'
 
 function CreatePostPage({ onSuccess, onClose }) {
   const [content, setContent] = useState('')
@@ -16,7 +16,7 @@ function CreatePostPage({ onSuccess, onClose }) {
     }
 
     try {
-      const response = await authFetch('http://localhost:8080/api/posts', {
+      const response = await authFetch(`${BASE_URL}/api/posts`, {
         method: 'POST',
         body: formData,
       })

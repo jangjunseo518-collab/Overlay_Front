@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { authFetch } from '../utils/api'
+import { authFetch, BASE_URL } from '../utils/api'
 
 function CreateWorldPage({ onSuccess, onClose }) {
   const [name, setName] = useState('')
@@ -10,7 +10,7 @@ function CreateWorldPage({ onSuccess, onClose }) {
     e.preventDefault()
 
     try {
-      const response = await authFetch('http://localhost:8080/api/worlds', {
+      const response = await authFetch(`${BASE_URL}/api/worlds`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

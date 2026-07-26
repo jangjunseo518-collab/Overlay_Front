@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BASE_URL } from '../utils/api'
 
 function VerifyEmailPage({ email, onVerifySuccess, onClose }) {
   const [code, setCode] = useState('')
@@ -7,7 +8,7 @@ function VerifyEmailPage({ email, onVerifySuccess, onClose }) {
     e.preventDefault()
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/verify', {
+      const response = await fetch(`${BASE_URL}/api/auth/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

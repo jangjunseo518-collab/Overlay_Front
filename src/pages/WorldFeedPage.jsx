@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import PostCard from '../components/PostCard'
 import AvatarListModal from '../components/AvatarListModal'
-import { authFetch } from '../utils/api'
+import { authFetch, BASE_URL } from '../utils/api'
 
 function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
   const [world, setWorld] = useState(null)
@@ -18,7 +18,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
   const [residents, setResidents] = useState([])
 
   const loadResidents = () => {
-    fetch(`http://localhost:8080/api/avatars/world/${worldId}`)
+    fetch(`${BASE_URL}/api/avatars/world/${worldId}`)
     .then((res) => res.json())
     .then((data) => setResidents(data))
     .catch((err) => console.error(err))
@@ -29,7 +29,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
   const loadWorld = () => {
     const token = localStorage.getItem('accessToken')
 
-    fetch(`http://localhost:8080/api/worlds/${worldId}`, {
+    fetch(`${BASE_URL}/api/worlds/${worldId}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     .then((res) => res.json())
@@ -52,7 +52,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     }
 
     try {
-      const response = await authFetch(`http://localhost:8080/api/worlds/${worldId}/like`, {
+      const response = await authFetch(`${BASE_URL}/api/worlds/${worldId}/like`, {
         method: 'POST',
       })
 
@@ -75,7 +75,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     e.preventDefault()
 
     try {
-      const response = await authFetch(`http://localhost:8080/api/worlds/${worldId}`, {
+      const response = await authFetch(`${BASE_URL}/api/worlds/${worldId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
   const handleMigrate = async () => {
     try {
       const response = await authFetch(
-          `http://localhost:8080/api/avatars/world?worldId=${worldId}`,
+          `${BASE_URL}/api/avatars/world?worldId=${worldId}`,
           { method: 'PATCH' }
       )
       if (!response.ok) {
@@ -122,7 +122,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     if (!window.confirm('이 세계관을 삭제하시겠습니까? 되돌릴 수 없습니다.')) return
 
     try {
-      const response = await authFetch(`http://localhost:8080/api/worlds/${worldId}`, {
+      const response = await authFetch(`${BASE_URL}/api/worlds/${worldId}`, {
         method: 'DELETE',
       })
 
@@ -146,7 +146,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
 
     try {
       const response = await authFetch(
-          `http://localhost:8080/api/worlds/${worldId}/${endpoint}`,
+          `${BASE_URL}/api/worlds/${worldId}/${endpoint}`,
           {
             method: 'PATCH',
             body: formData,
@@ -183,7 +183,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     loadWorld()
 
     const token = localStorage.getItem('accessToken')
-    fetch(`http://localhost:8080/api/posts/feed/worlds/${worldId}`, {
+    fetch(`${BASE_URL}/api/posts/feed/worlds/${worldId}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     .then((res) => res.json())
@@ -191,7 +191,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     .catch((err) => console.error(err))
 
     if (isLoggedIn) {
-      authFetch('http://localhost:8080/api/users/me/active-avatar')
+      authFetch(`${BASE_URL}/api/users/me/active-avatar`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data) setMyActiveWorldId(data.worldId)

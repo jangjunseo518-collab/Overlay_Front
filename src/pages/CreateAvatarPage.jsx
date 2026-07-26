@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { authFetch } from '../utils/api'
+import { authFetch, BASE_URL } from '../utils/api'
 
 function CreateAvatarPage({ onSuccess, onClose }) {
   const [name, setName] = useState('')
@@ -18,7 +18,7 @@ function CreateAvatarPage({ onSuccess, onClose }) {
     }
 
     try {
-      const response = await authFetch('http://localhost:8080/api/avatars', {
+      const response = await authFetch(`${BASE_URL}/api/avatars`, {
         method: 'POST',
         body: formData,
       })

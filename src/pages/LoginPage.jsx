@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BASE_URL } from '../utils/api'
 
 function LoginPage({ onSwitchToSignUp, onLoginSuccess, onClose }) {
   const [email, setEmail] = useState('')
@@ -8,9 +9,11 @@ function LoginPage({ onSwitchToSignUp, onLoginSuccess, onClose }) {
     e.preventDefault()
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(`${BASE_URL}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, password }),
       })
 
@@ -24,23 +27,23 @@ function LoginPage({ onSwitchToSignUp, onLoginSuccess, onClose }) {
       localStorage.setItem('accessToken', data.accessToken)
       localStorage.setItem('refreshToken', data.refreshToken)
       localStorage.setItem('userId', data.userId)
-      onLoginSuccess()   // ← alert 대신 이걸로 교체
+      onLoginSuccess()
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
     }
   }
 
-
   return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="relative w-full max-w-sm rounded-2xl bg-white p-8 shadow-md">   {/* relative 추가 */}
-          <button
-              onClick={onClose}
-              className="absolute left-4 top-4 text-2xl font-bold text-red-400 hover:text-red-600"
-          >
-            &times;
-          </button>
+      <div className="relative flex min-h-screen items-center justify-center bg-gray-50">
+        <button
+            onClick={onClose}
+            className="absolute left-4 top-4 text-2xl text-gray-400 hover:text-gray-600"
+        >
+          &times;
+        </button>
+
+        <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-md">
           <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
             로그인
           </h1>

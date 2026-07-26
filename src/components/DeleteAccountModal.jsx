@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { authFetch } from '../utils/api'
+import { authFetch, BASE_URL } from '../utils/api'
 
 function DeleteAccountModal({ onClose }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   useEffect(() => {
-    authFetch('http://localhost:8080/api/auth/me')
+    authFetch(`${BASE_URL}/api/auth/me`)
     .then((res) => res.json())
     .then((data) => setEmail(data.email))
     .catch((err) => console.error(err))
@@ -21,7 +21,7 @@ function DeleteAccountModal({ onClose }) {
     if (!window.confirm('정말 탈퇴하시겠습니까? 모든 데이터가 삭제되며 되돌릴 수 없습니다.')) return
 
     try {
-      const response = await authFetch('http://localhost:8080/api/auth/me', {
+      const response = await authFetch(`${BASE_URL}/api/auth/me`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

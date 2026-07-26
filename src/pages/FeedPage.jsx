@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import PostCard from '../components/PostCard'
 import DeleteAccountModal from '../components/DeleteAccountModal'
-import { authFetch } from '../utils/api'
+import { authFetch, BASE_URL } from '../utils/api'
 
 function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
   onCreateAvatarClick, onCreatePostClick, onAvatarClick, onLogoutClick,
@@ -16,7 +16,7 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
   const loadGlobalFeed = () => {
     const token = localStorage.getItem('accessToken')
 
-    fetch('http://localhost:8080/api/posts/feed/global', {
+    fetch(`${BASE_URL}/api/posts/feed/global`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     .then((res) => res.json())
@@ -31,12 +31,12 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
       return
     }
 
-    authFetch('http://localhost:8080/api/users/me/active-avatar')
+    authFetch(`${BASE_URL}/api/users/me/active-avatar`)
     .then((res) => (res.ok ? res.json() : null))
     .then((data) => {
       setMyActiveAvatar(data)
       if (data) {
-        return fetch(`http://localhost:8080/api/worlds/${data.worldId}`)
+        return fetch(`${BASE_URL}/api/worlds/${data.worldId}`)
       }
       return null
     })

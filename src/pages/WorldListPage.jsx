@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
+import { BASE_URL } from '../utils/api'
 
 function WorldListPage({ onClose, onWorldClick }) {
   const [worlds, setWorlds] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/worlds?page=0&size=50')
+    fetch(`${BASE_URL}/api/worlds?page=0&size=50`)
     .then((res) => res.json())
     .then((data) => setWorlds(data.worlds))
     .catch((err) => console.error(err))

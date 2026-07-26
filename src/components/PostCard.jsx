@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import CommentSection from './CommentSection'
-import { authFetch } from '../utils/api'
+import { authFetch, BASE_URL } from '../utils/api'
 
 function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, onPostChanged }) {
   const [liked, setLiked] = useState(post.liked)
@@ -33,7 +33,7 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
 
     try {
       const response = await authFetch(
-          `http://localhost:8080/api/posts/${post.postId}/like`,
+          `${BASE_URL}/api/posts/${post.postId}/like`,
           {
             method: 'POST',
           }
@@ -58,7 +58,7 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
     if (!editContent.trim()) return
 
     try {
-      const response = await authFetch(`http://localhost:8080/api/posts/${post.postId}`, {
+      const response = await authFetch(`${BASE_URL}/api/posts/${post.postId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
     if (!window.confirm('이 게시글을 삭제하시겠습니까?')) return
 
     try {
-      const response = await authFetch(`http://localhost:8080/api/posts/${post.postId}`, {
+      const response = await authFetch(`${BASE_URL}/api/posts/${post.postId}`, {
         method: 'DELETE',
       })
 
@@ -113,7 +113,7 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
     }
 
     try {
-      const response = await authFetch('http://localhost:8080/api/reports', {
+      const response = await authFetch(`${BASE_URL}/api/reports`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

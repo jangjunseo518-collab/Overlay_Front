@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { authFetch } from '../utils/api'
+import { authFetch, BASE_URL } from '../utils/api'
 
 function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
   const [liked, setLiked] = useState(comment.liked)
@@ -23,7 +23,7 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
 
     try {
       const response = await authFetch(
-          `http://localhost:8080/api/posts/comments/${comment.commentId}/like`,
+          `${BASE_URL}/api/posts/comments/${comment.commentId}/like`,
           {
             method: 'POST',
           }
@@ -58,7 +58,7 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
 
     try {
       const response = await authFetch(
-          `http://localhost:8080/api/posts/comments/${comment.commentId}`,
+          `${BASE_URL}/api/posts/comments/${comment.commentId}`,
           {
             method: 'PATCH',
             headers: {
@@ -87,7 +87,7 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
 
     try {
       const response = await authFetch(
-          `http://localhost:8080/api/posts/comments/${comment.commentId}`,
+          `${BASE_URL}/api/posts/comments/${comment.commentId}`,
           {
             method: 'DELETE',
           }

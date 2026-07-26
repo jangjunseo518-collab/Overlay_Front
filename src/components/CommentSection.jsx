@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import CommentItem from './CommentItem'
-import { authFetch } from '../utils/api'
+import { authFetch, BASE_URL } from '../utils/api'
 
 function CommentSection({ postId }) {
   const [comments, setComments] = useState([])
@@ -10,7 +10,7 @@ function CommentSection({ postId }) {
   const loadComments = () => {
     const token = localStorage.getItem('accessToken')
 
-    fetch(`http://localhost:8080/api/posts/${postId}/comments`, {
+    fetch(`${BASE_URL}/api/posts/${postId}/comments`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     .then((res) => res.json())
@@ -32,7 +32,7 @@ function CommentSection({ postId }) {
 
     try {
       const response = await authFetch(
-          `http://localhost:8080/api/posts/${postId}/comments`,
+          `${BASE_URL}/api/posts/${postId}/comments`,
           {
             method: 'POST',
             headers: {
