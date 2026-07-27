@@ -242,8 +242,7 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
               {isLoggedIn && (
                   <button
                       onClick={onLogoutClick}
-                      className="rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap"
-                  >
+                      className="rounded-lg pl-0 pr-3 py-1 sm:pr-5 sm:py-1.5 text-xs sm:text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap"                  >
                     로그아웃
                   </button>
               )}
