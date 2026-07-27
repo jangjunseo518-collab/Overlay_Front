@@ -5,6 +5,7 @@ function SignUpPage({ onSwitchToLogin, onClose, onSignUpSuccess }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [nickname, setNickname] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -54,13 +55,29 @@ function SignUpPage({ onSwitchToLogin, onClose, onSignUpSuccess }) {
                 onChange={(e) => setEmail(e.target.value)}
                 className="rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-blue-500"
             />
-            <input
-                type="password"
-                placeholder="비밀번호"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-blue-500"
-            />
+
+            <div className="flex flex-col gap-1">
+              <div className="relative">
+                <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="비밀번호"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-16 outline-none focus:border-blue-500"
+                />
+                <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? '숨기기' : '보기'}
+                </button>
+              </div>
+              <p className="text-xs text-gray-400">
+                영문, 숫자, 특수문자(@$!%*#?&)를 포함해 8자 이상 입력해주세요.
+              </p>
+            </div>
+
             <input
                 type="text"
                 placeholder="닉네임"
