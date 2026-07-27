@@ -91,7 +91,8 @@ function CommentSection({ postId }) {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="댓글 달기..."
-              className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none focus:border-blue-500"
+              className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
+
           />
           <button
               onClick={handleNewCommentSubmit}
