@@ -110,29 +110,6 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!latestSeenPostId) return
-
-      fetch(`${BASE_URL}/api/posts/feed/global?page=0&size=10`)
-      .then((res) => res.json())
-      .then((data) => {
-        const newCount = data.content.filter(
-            (post) => post.postId > latestSeenPostId
-        ).length
-        setNewPostCount(newCount)
-      })
-      .catch((err) => console.error(err))
-    }, 60000) // 1분마다 확인
-
-    return () => clearInterval(interval)
-  }, [latestSeenPostId])
-
-  const handleShowNewPosts = () => {
-    loadGlobalFeed(0, false)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
   const requireLogin = (action) => {
     if (isLoggedIn) {
       action()
@@ -143,11 +120,27 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
     setIsMenuOpen(false)
   }
 
+  const handleShowNewPosts = () => {
+    loadGlobalFeed(0, false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleLogoClick = () => {
+    loadGlobalFeed(0, false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
       <div className="min-h-screen bg-gray-100">
-        <div className="border-b border-gray-200 bg-white">
-          <div className="mx-auto flex max-w-xl items-center justify-between px-4 py-3">
-            <h1 className="text-xl font-bold text-gray-800">Overlay</h1>
+        <div className="sticky top-0 z-40 border-b border-gray-200 bg-white overflow-visible">
+          <div className="relative mx-auto flex max-w-xl items-center justify-between px-4 py-3">
+            <button onClick={handleLogoClick} className="relative z-10">
+              <img
+                  src="/logoh.png"
+                  alt="Overlay"
+                  className="h-16 w-auto max-w-none"
+              />
+            </button>
 
             <div className="flex items-center gap-2">
               <button
