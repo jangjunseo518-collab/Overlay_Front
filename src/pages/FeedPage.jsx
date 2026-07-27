@@ -145,8 +145,7 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
             <div className="flex items-center gap-2">
               <button
                   onClick={onWorldListClick}
-                  className="rounded-lg border border-gray-300 px-4 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-              >
+                  className="rounded-lg border border-gray-300 px-2 py-1 sm:px-4 sm:py-1.5 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"              >
                 세계관 둘러보기
               </button>
 
@@ -235,7 +234,7 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
               {!isLoggedIn && (
                   <button
                       onClick={onLoginClick}
-                      className="rounded-lg bg-blue-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+                      className="rounded-lg bg-blue-500 px-2 py-1 sm:px-4 sm:py-1.5 text-xs sm:text-sm font-semibold text-white hover:bg-blue-600 whitespace-nowrap"
                   >
                     로그인
                   </button>
@@ -243,7 +242,7 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
               {isLoggedIn && (
                   <button
                       onClick={onLogoutClick}
-                      className="rounded-lg px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700"
+                      className="rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap"
                   >
                     로그아웃
                   </button>
