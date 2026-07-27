@@ -258,73 +258,77 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
           </button>
 
           <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                {avatar.profileImageUrl ? (
-                    <img
-                        src={avatar.profileImageUrl}
-                        alt={avatar.name}
-                        className="h-20 w-20 shrink-0 rounded-full object-cover"
-                    />
-                ) : (
-                    <div className="h-20 w-20 shrink-0 rounded-full bg-gray-200" />
-                )}
-                <div>
-                  <h1 className="text-xl font-bold text-gray-800">{avatar.name}</h1>
-                  {world && (
-                      <p
-                          onClick={() => onWorldClick(world.worldId)}
-                          className="cursor-pointer text-sm text-gray-400 hover:text-gray-600 hover:underline"
-                      >
-                        {world.name}
-                      </p>
-                  )}
-                  <p className="text-sm text-gray-500">{avatar.bio}</p>
+            <div className="flex items-start gap-4">
+              {avatar.profileImageUrl ? (
+                  <img
+                      src={avatar.profileImageUrl}
+                      alt={avatar.name}
+                      className="h-20 w-20 shrink-0 rounded-full object-cover"
+                  />
+              ) : (
+                  <div className="h-20 w-20 shrink-0 rounded-full bg-gray-200" />
+              )}
 
-                  <div className="mt-2 flex items-center gap-3 text-sm text-gray-500">
-                    <button
-                        onClick={() => {
-                          loadFollowers()
-                          setShowFollowers(true)
-                        }}
-                        className="hover:underline"
-                    >
-                      팔로워 {avatar.followerCount}
-                    </button>
-                    <button
-                        onClick={() => {
-                          loadFollowings()
-                          setShowFollowings(true)
-                        }}
-                        className="hover:underline"
-                    >
-                      팔로잉 {avatar.followingCount}
-                    </button>
-                  </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <h1 className="truncate text-xl font-bold text-gray-800">{avatar.name}</h1>
 
-                  {!isMine && (
+                  {Number(avatarId) === Number(activeAvatarId) && (
                       <button
-                          onClick={handleToggleFollow}
-                          className={`mt-2 rounded-lg px-4 py-1.5 text-sm font-semibold ${
-                              avatar.isFollowing
-                                  ? 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                                  : 'bg-blue-500 text-white hover:bg-blue-600'
-                          }`}
+                          onClick={onCreatePostClick}
+                          className="shrink-0 rounded-lg bg-blue-500 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-600 sm:px-4 sm:py-1.5 sm:text-sm"
                       >
-                        {avatar.isFollowing ? '팔로잉' : '팔로우'}
+                        새 포스트 작성
                       </button>
                   )}
                 </div>
-              </div>
 
-              {Number(avatarId) === Number(activeAvatarId) && (
+                {world && (
+                    <p
+                        onClick={() => onWorldClick(world.worldId)}
+                        className="cursor-pointer text-sm text-gray-400 hover:text-gray-600 hover:underline"
+                    >
+                      {world.name}
+                    </p>
+                )}
+                <p className="whitespace-pre-wrap break-words text-sm text-gray-500">
+                  {avatar.bio}
+                </p>
+
+                <div className="mt-2 flex items-center gap-3 text-sm text-gray-500">
                   <button
-                      onClick={onCreatePostClick}
-                      className="shrink-0 rounded-lg bg-blue-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+                      onClick={() => {
+                        loadFollowers()
+                        setShowFollowers(true)
+                      }}
+                      className="hover:underline"
                   >
-                    새 포스트 작성
+                    팔로워 {avatar.followerCount}
                   </button>
-              )}
+                  <button
+                      onClick={() => {
+                        loadFollowings()
+                        setShowFollowings(true)
+                      }}
+                      className="hover:underline"
+                  >
+                    팔로잉 {avatar.followingCount}
+                  </button>
+                </div>
+
+                {!isMine && (
+                    <button
+                        onClick={handleToggleFollow}
+                        className={`mt-2 rounded-lg px-4 py-1.5 text-sm font-semibold ${
+                            avatar.isFollowing
+                                ? 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                : 'bg-blue-500 text-white hover:bg-blue-600'
+                        }`}
+                    >
+                      {avatar.isFollowing ? '팔로잉' : '팔로우'}
+                    </button>
+                )}
+              </div>
             </div>
 
             {isMine && !isEditing && (
@@ -396,13 +400,13 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-blue-500"
+                        className="rounded-lg border border-gray-300 px-4 py-2 text-base outline-none focus:border-blue-500"
                     />
                     <textarea
                         value={bio}
                         onChange={(e) => setBio(e.target.value)}
                         rows={2}
-                        className="rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-blue-500"
+                        className="rounded-lg border border-gray-300 px-4 py-2 text-base outline-none focus:border-blue-500"
                     />
                     <button
                         type="submit"
