@@ -12,17 +12,50 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
   const [myActiveAvatar, setMyActiveAvatar] = useState(null)
   const [myActiveWorld, setMyActiveWorld] = useState(null)
   const [showDeleteAccount, setShowDeleteAccount] = useState(false)
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [latestSeenPostId, setLatestSeenPostId] = useState(null)
+  const [newPostCount, setNewPostCount] = useState(0)
 
-  const loadGlobalFeed = () => {
+  const loadGlobalFeed = (pageNum = 0, append = false) => {
     const token = localStorage.getItem('accessToken')
 
-    fetch(`${BASE_URL}/api/posts/feed/global`, {
+    fetch(`${BASE_URL}/api/posts/feed/global?page=${pageNum}&size=10`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
     .then((res) => res.json())
-    .then((data) => setPosts(data))
+    .then((data) => {
+      setPosts((prev) => (append ? [...prev, ...data.content] : data.content))
+      setHasMore(!data.last)
+      setPage(pageNum)
+
+      if (!append && data.content.length > 0) {
+        setLatestSeenPostId(data.content[0].postId)
+        setNewPostCount(0)
+      }
+    })
     .catch((err) => console.error(err))
+    .finally(() => setIsLoadingMore(false))
   }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!latestSeenPostId) return
+
+      fetch(`${BASE_URL}/api/posts/feed/global?page=0&size=10`)
+      .then((res) => res.json())
+      .then((data) => {
+        const newCount = data.content.filter(
+            (post) => post.postId > latestSeenPostId
+        ).length
+        setNewPostCount(newCount)
+      })
+      .catch((err) => console.error(err))
+    }, 60000)
+
+    return () => clearInterval(interval)
+  }, [latestSeenPostId])
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -48,8 +81,24 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
   }, [isLoggedIn])
 
   useEffect(() => {
-    loadGlobalFeed()
+    loadGlobalFeed(0, false)
   }, [])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+          window.innerHeight + window.scrollY >= document.body.offsetHeight - 300 &&
+          hasMore &&
+          !isLoadingMore
+      ) {
+        setIsLoadingMore(true)
+        loadGlobalFeed(page + 1, true)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [page, hasMore, isLoadingMore])
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -60,6 +109,29 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!latestSeenPostId) return
+
+      fetch(`${BASE_URL}/api/posts/feed/global?page=0&size=10`)
+      .then((res) => res.json())
+      .then((data) => {
+        const newCount = data.content.filter(
+            (post) => post.postId > latestSeenPostId
+        ).length
+        setNewPostCount(newCount)
+      })
+      .catch((err) => console.error(err))
+    }, 60000) // 1분마다 확인
+
+    return () => clearInterval(interval)
+  }, [latestSeenPostId])
+
+  const handleShowNewPosts = () => {
+    loadGlobalFeed(0, false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const requireLogin = (action) => {
     if (isLoggedIn) {
@@ -188,6 +260,15 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
         </div>
 
         <div className="mx-auto max-w-xl px-4 py-6">
+          {newPostCount > 0 && (
+              <button
+                  onClick={handleShowNewPosts}
+                  className="mb-4 w-full rounded-lg bg-blue-500 py-2 text-sm font-semibold text-white hover:bg-blue-600"
+              >
+                새 게시물 {newPostCount}개 보기
+              </button>
+          )}
+
           <div className="flex flex-col gap-4">
             {posts.map((post) => (
                 <PostCard
@@ -195,10 +276,20 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
                     post={post}
                     onAvatarClick={onAvatarClick}
                     onWorldClick={onWorldClick}
-                    onPostChanged={loadGlobalFeed}
+                    onPostChanged={() => loadGlobalFeed(0, false)}
                 />
             ))}
           </div>
+
+          {isLoadingMore && (
+              <p className="py-4 text-center text-sm text-gray-400">불러오는 중...</p>
+          )}
+
+          {!hasMore && posts.length > 0 && (
+              <p className="py-4 text-center text-sm text-gray-400">
+                모든 피드를 다 봤어요.
+              </p>
+          )}
         </div>
 
         {showDeleteAccount && (
