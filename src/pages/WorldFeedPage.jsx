@@ -17,6 +17,13 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
   const [showResidents, setShowResidents] = useState(false)
   const [residents, setResidents] = useState([])
 
+  // 연타 방지용 상태 관리
+  const [isUpdatingInfo, setIsUpdatingInfo] = useState(false)
+  const [isMigrating, setIsMigrating] = useState(false)
+  const [isDeletingWorld, setIsDeletingWorld] = useState(false)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [isLiking, setIsLiking] = useState(false)
+
   const loadResidents = () => {
     fetch(`${BASE_URL}/api/avatars/world/${worldId}`)
     .then((res) => res.json())
@@ -51,6 +58,9 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
       return
     }
 
+    if (isLiking) return
+    setIsLiking(true)
+
     try {
       const response = await authFetch(`${BASE_URL}/api/worlds/${worldId}/like`, {
         method: 'POST',
@@ -68,11 +78,15 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsLiking(false)
     }
   }
 
   const handleUpdateInfo = async (e) => {
     e.preventDefault()
+    if (isUpdatingInfo) return
+    setIsUpdatingInfo(true)
 
     try {
       const response = await authFetch(`${BASE_URL}/api/worlds/${worldId}`, {
@@ -95,10 +109,15 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsUpdatingInfo(false)
     }
   }
 
   const handleMigrate = async () => {
+    if (isMigrating) return
+    setIsMigrating(true)
+
     try {
       const response = await authFetch(
           `${BASE_URL}/api/avatars/world?worldId=${worldId}`,
@@ -115,12 +134,16 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsMigrating(false)
     }
   }
 
   const handleDeleteWorld = async () => {
+    if (isDeletingWorld) return
     if (!window.confirm('이 세계관을 삭제하시겠습니까? 되돌릴 수 없습니다.')) return
 
+    setIsDeletingWorld(true)
     try {
       const response = await authFetch(`${BASE_URL}/api/worlds/${worldId}`, {
         method: 'DELETE',
@@ -137,10 +160,15 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsDeletingWorld(false)
     }
   }
 
   const uploadImage = async (file, endpoint, fieldName, successMessage) => {
+    if (isUploadingImage) return
+    setIsUploadingImage(true)
+
     const formData = new FormData()
     formData.append(fieldName, file)
 
@@ -164,6 +192,8 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsUploadingImage(false)
     }
   }
 
@@ -218,7 +248,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
 
           <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
             <div
-                onClick={() => isMine && coverFileInputRef.current.click()}
+                onClick={() => isMine && !isUploadingImage && coverFileInputRef.current.click()}
                 className={`flex h-40 w-full items-center justify-center bg-gray-200 ${
                     isMine ? 'cursor-pointer hover:bg-gray-300' : ''
                 }`}
@@ -245,7 +275,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
 
             <div className="px-6">
               <div
-                  onClick={() => isMine && fileInputRef.current.click()}
+                  onClick={() => isMine && !isUploadingImage && fileInputRef.current.click()}
                   className={`-mt-10 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-gray-200 ${
                       isMine ? 'cursor-pointer hover:bg-gray-300' : ''
                   }`}
@@ -288,6 +318,7 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
                   </button>
                   <button
                       onClick={handleToggleLike}
+                      disabled={isLiking}
                       className="flex items-center gap-1 text-sm"
                   >
                   <span className={liked ? 'text-red-500' : 'text-gray-400'}>
@@ -312,9 +343,10 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
                       </button>
                       <button
                           onClick={handleDeleteWorld}
-                          className="text-xs text-red-400 hover:text-red-600"
+                          disabled={isDeletingWorld}
+                          className="text-xs text-red-400 hover:text-red-600 disabled:opacity-50"
                       >
-                        삭제
+                        {isDeletingWorld ? '삭제 중...' : '삭제'}
                       </button>
                     </div>
                 )}
@@ -343,9 +375,13 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
                     <div className="flex gap-2">
                       <button
                           type="submit"
-                          className="rounded-lg bg-blue-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+                          disabled={isUpdatingInfo}
+                          className="flex items-center gap-1.5 rounded-lg bg-blue-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
                       >
-                        저장
+                        {isUpdatingInfo && (
+                            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        )}
+                        {isUpdatingInfo ? '저장 중...' : '저장'}
                       </button>
                       <button
                           type="button"
@@ -363,9 +399,13 @@ function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
                 <div className="border-t border-gray-200 px-6 py-4">
                   <button
                       onClick={handleMigrate}
-                      className="rounded-lg border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      disabled={isMigrating}
+                      className="flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                   >
-                    이 세계관으로 이주하기
+                    {isMigrating && (
+                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-700 border-t-transparent" />
+                    )}
+                    {isMigrating ? '이주 처리 중...' : '이 세계관으로 이주하기'}
                   </button>
                 </div>
             )}

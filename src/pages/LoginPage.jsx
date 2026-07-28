@@ -4,9 +4,12 @@ import { BASE_URL } from '../utils/api'
 function LoginPage({ onSwitchToSignUp, onLoginSuccess, onClose }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return
+    setIsSubmitting(true)
 
     try {
       const response = await fetch(`${BASE_URL}/api/auth/login`, {
@@ -31,6 +34,8 @@ function LoginPage({ onSwitchToSignUp, onLoginSuccess, onClose }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -65,9 +70,13 @@ function LoginPage({ onSwitchToSignUp, onLoginSuccess, onClose }) {
             />
             <button
                 type="submit"
-                className="mt-2 rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600"
+                disabled={isSubmitting}
+                className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
             >
-              로그인
+              {isSubmitting && (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              )}
+              {isSubmitting ? '로그인 중...' : '로그인'}
             </button>
           </form>
 

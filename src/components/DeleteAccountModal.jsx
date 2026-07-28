@@ -4,6 +4,7 @@ import { authFetch, BASE_URL } from '../utils/api'
 function DeleteAccountModal({ onClose }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     authFetch(`${BASE_URL}/api/auth/me`)
@@ -18,7 +19,10 @@ function DeleteAccountModal({ onClose }) {
       return
     }
 
+    if (isSubmitting) return
     if (!window.confirm('정말 탈퇴하시겠습니까? 모든 데이터가 삭제되며 되돌릴 수 없습니다.')) return
+
+    setIsSubmitting(true)
 
     try {
       const response = await authFetch(`${BASE_URL}/api/auth/me`, {
@@ -43,6 +47,8 @@ function DeleteAccountModal({ onClose }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -72,9 +78,13 @@ function DeleteAccountModal({ onClose }) {
             </button>
             <button
                 onClick={handleDelete}
-                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
+                disabled={isSubmitting}
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
             >
-              탈퇴하기
+              {isSubmitting && (
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              )}
+              {isSubmitting ? '탈퇴 처리 중...' : '탈퇴하기'}
             </button>
           </div>
         </div>

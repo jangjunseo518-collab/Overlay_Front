@@ -9,6 +9,7 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
   const [replyContent, setReplyContent] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(comment.content)
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false)
 
   const myUserId = localStorage.getItem('userId')
   const isMine = String(comment.userId) === myUserId
@@ -45,12 +46,17 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
   }
 
   const handleReplySubmit = async () => {
-    if (!replyContent.trim()) return
+    if (!replyContent.trim() || isSubmittingReply) return
 
-    await onReplySubmit(comment.commentId, replyContent)
-    setReplyContent('')
-    setShowReplyInput(false)
-    setShowReplies(true)
+    setIsSubmittingReply(true)
+    try {
+      await onReplySubmit(comment.commentId, replyContent)
+      setReplyContent('')
+      setShowReplyInput(false)
+      setShowReplies(true)
+    } finally {
+      setIsSubmittingReply(false)
+    }
   }
 
   const handleUpdate = async () => {
@@ -133,7 +139,7 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
                       type="text"
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
-                      className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none focus:border-blue-500"
+                      className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
                   />
                   <button
                       onClick={handleUpdate}
@@ -204,12 +210,15 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
                       onChange={(e) => setReplyContent(e.target.value)}
                       placeholder="답글 달기..."
                       className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
-
                   />
                   <button
                       onClick={handleReplySubmit}
-                      className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+                      disabled={isSubmittingReply}
+                      className="flex items-center justify-center gap-1 rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
                   >
+                    {isSubmittingReply && (
+                        <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    )}
                     게시
                   </button>
                 </div>

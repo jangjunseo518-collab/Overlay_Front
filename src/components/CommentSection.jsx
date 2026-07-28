@@ -6,6 +6,7 @@ function CommentSection({ postId }) {
   const [comments, setComments] = useState([])
   const [showAll, setShowAll] = useState(false)
   const [newComment, setNewComment] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const loadComments = () => {
     const token = localStorage.getItem('accessToken')
@@ -56,10 +57,16 @@ function CommentSection({ postId }) {
   }
 
   const handleNewCommentSubmit = async () => {
-    if (!newComment.trim()) return
-    await postComment(null, newComment)
-    setNewComment('')
-    setShowAll(true)
+    if (!newComment.trim() || isSubmitting) return
+
+    setIsSubmitting(true)
+    try {
+      await postComment(null, newComment)
+      setNewComment('')
+      setShowAll(true)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const visibleComments = showAll ? comments : comments.slice(0, 2)
@@ -92,12 +99,15 @@ function CommentSection({ postId }) {
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="댓글 달기..."
               className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
-
           />
           <button
               onClick={handleNewCommentSubmit}
-              className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+              disabled={isSubmitting}
+              className="flex items-center justify-center gap-1 rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
           >
+            {isSubmitting && (
+                <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            )}
             게시
           </button>
         </div>

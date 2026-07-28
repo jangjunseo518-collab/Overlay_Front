@@ -10,6 +10,12 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
+  // 액션별 연타 방지 상태
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isReporting, setIsReporting] = useState(false)
+  const [isLiking, setIsLiking] = useState(false)
+
   const myUserId = localStorage.getItem('userId')
   const isMine = String(post.userId) === myUserId
 
@@ -31,12 +37,13 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
       return
     }
 
+    if (isLiking) return
+    setIsLiking(true)
+
     try {
       const response = await authFetch(
           `${BASE_URL}/api/posts/${post.postId}/like`,
-          {
-            method: 'POST',
-          }
+          { method: 'POST' }
       )
 
       if (!response.ok) {
@@ -51,11 +58,15 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsLiking(false)
     }
   }
 
   const handleUpdate = async () => {
     if (!editContent.trim()) return
+    if (isUpdating) return
+    setIsUpdating(true)
 
     try {
       const response = await authFetch(`${BASE_URL}/api/posts/${post.postId}`, {
@@ -77,12 +88,16 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsUpdating(false)
     }
   }
 
   const handleDelete = async () => {
+    if (isDeleting) return
     if (!window.confirm('이 게시글을 삭제하시겠습니까?')) return
 
+    setIsDeleting(true)
     try {
       const response = await authFetch(`${BASE_URL}/api/posts/${post.postId}`, {
         method: 'DELETE',
@@ -98,10 +113,13 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
   const handleReport = async () => {
+    if (isReporting) return
     const reason = window.prompt('신고 사유를 입력해주세요.')
     if (!reason || !reason.trim()) return
 
@@ -112,6 +130,7 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
       return
     }
 
+    setIsReporting(true)
     try {
       const response = await authFetch(`${BASE_URL}/api/reports`, {
         method: 'POST',
@@ -135,6 +154,8 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsReporting(false)
     }
   }
 
@@ -189,8 +210,12 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
                 <div className="flex gap-2">
                   <button
                       onClick={handleUpdate}
-                      className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+                      disabled={isUpdating}
+                      className="flex items-center justify-center gap-1 rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
                   >
+                    {isUpdating && (
+                        <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    )}
                     저장
                   </button>
                   <button
@@ -207,7 +232,7 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
           )}
 
           <div className="mt-3 flex items-center justify-between">
-            <button onClick={handleToggleLike} className="flex items-center gap-1.5 text-sm">
+            <button onClick={handleToggleLike} disabled={isLiking} className="flex items-center gap-1.5 text-sm">
             <span className={liked ? 'text-red-500' : 'text-gray-400'}>
               {liked ? '♥' : '♡'}
             </span>
@@ -241,7 +266,8 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
                                     setIsMenuOpen(false)
                                     handleDelete()
                                   }}
-                                  className="rounded-md bg-red-500 py-1.5 text-sm font-semibold text-white hover:bg-red-600"
+                                  disabled={isDeleting}
+                                  className="rounded-md bg-red-500 py-1.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
                               >
                                 삭제
                               </button>
@@ -254,7 +280,8 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
                                   setIsMenuOpen(false)
                                   handleReport()
                                 }}
-                                className="rounded-md bg-gray-500 py-1.5 text-sm font-semibold text-white hover:bg-gray-600"
+                                disabled={isReporting}
+                                className="rounded-md bg-gray-500 py-1.5 text-sm font-semibold text-white hover:bg-gray-600 disabled:opacity-50"
                             >
                               신고하기
                             </button>

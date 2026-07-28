@@ -6,9 +6,12 @@ function SignUpPage({ onSwitchToLogin, onClose, onSignUpSuccess }) {
   const [password, setPassword] = useState('')
   const [nickname, setNickname] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return
+    setIsSubmitting(true)
 
     try {
       const response = await fetch(`${BASE_URL}/api/auth/signup`, {
@@ -30,6 +33,8 @@ function SignUpPage({ onSwitchToLogin, onClose, onSignUpSuccess }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -87,9 +92,13 @@ function SignUpPage({ onSwitchToLogin, onClose, onSignUpSuccess }) {
             />
             <button
                 type="submit"
-                className="mt-2 rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600"
+                disabled={isSubmitting}
+                className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
             >
-              가입하기
+              {isSubmitting && (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              )}
+              {isSubmitting ? '가입 중...' : '가입하기'}
             </button>
           </form>
 

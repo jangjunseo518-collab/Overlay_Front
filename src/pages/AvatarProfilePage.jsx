@@ -23,6 +23,13 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
   const [followers, setFollowers] = useState([])
   const [followings, setFollowings] = useState([])
 
+  // 연타 방지를 위한 로딩 상태값들
+  const [isUpdatingInfo, setIsUpdatingInfo] = useState(false)
+  const [isUpdatingImage, setIsUpdatingImage] = useState(false)
+  const [isDeletingImage, setIsDeletingImage] = useState(false)
+  const [isTogglingFollow, setIsTogglingFollow] = useState(false)
+  const [isDeletingAvatar, setIsDeletingAvatar] = useState(false)
+
   const myUserId = localStorage.getItem('userId')
 
   const loadFollowers = () => {
@@ -91,6 +98,8 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
 
   const handleUpdateInfo = async (e) => {
     e.preventDefault()
+    if (isUpdatingInfo) return
+    setIsUpdatingInfo(true)
 
     try {
       const response = await authFetch(`${BASE_URL}/api/avatars/${avatarId}`, {
@@ -113,12 +122,16 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsUpdatingInfo(false)
     }
   }
 
   const handleDeleteImage = async () => {
+    if (isDeletingImage) return
     if (!window.confirm('프로필 이미지를 삭제하시겠습니까?')) return
 
+    setIsDeletingImage(true)
     try {
       const response = await authFetch(`${BASE_URL}/api/avatars/${avatarId}/image`, {
         method: 'DELETE',
@@ -135,6 +148,8 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsDeletingImage(false)
     }
   }
 
@@ -145,6 +160,9 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
       alert('로그인 또는 회원가입이 필요합니다.')
       return
     }
+
+    if (isTogglingFollow) return
+    setIsTogglingFollow(true)
 
     try {
       const response = await authFetch(
@@ -164,11 +182,15 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsTogglingFollow(false)
     }
   }
 
   const handleUpdateImage = async () => {
     if (!profileImage) return
+    if (isUpdatingImage) return
+    setIsUpdatingImage(true)
 
     const formData = new FormData()
     formData.append('profileImage', profileImage)
@@ -194,6 +216,8 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsUpdatingImage(false)
     }
   }
 
@@ -222,8 +246,10 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
   }
 
   const handleDeleteAvatar = async () => {
+    if (isDeletingAvatar) return
     if (!window.confirm('이 캐릭터를 삭제하시겠습니까? 작성한 게시글도 함께 삭제됩니다.')) return
 
+    setIsDeletingAvatar(true)
     try {
       const response = await authFetch(`${BASE_URL}/api/avatars/${avatarId}`, {
         method: 'DELETE',
@@ -240,6 +266,8 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsDeletingAvatar(false)
     }
   }
 
@@ -319,12 +347,16 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
                 {!isMine && (
                     <button
                         onClick={handleToggleFollow}
-                        className={`mt-2 rounded-lg px-4 py-1.5 text-sm font-semibold ${
+                        disabled={isTogglingFollow}
+                        className={`mt-2 inline-flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-semibold disabled:opacity-50 ${
                             avatar.isFollowing
                                 ? 'border border-gray-300 text-gray-700 hover:bg-gray-50'
                                 : 'bg-blue-500 text-white hover:bg-blue-600'
                         }`}
                     >
+                      {isTogglingFollow && (
+                          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      )}
                       {avatar.isFollowing ? '팔로잉' : '팔로우'}
                     </button>
                 )}
@@ -355,9 +387,13 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
 
                     <button
                         onClick={handleDeleteAvatar}
-                        className="rounded-lg border border-red-300 px-4 py-1.5 text-sm font-medium text-red-500 hover:bg-red-50"
+                        disabled={isDeletingAvatar}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 px-4 py-1.5 text-sm font-medium text-red-500 hover:bg-red-50 disabled:opacity-50"
                     >
-                      캐릭터 삭제
+                      {isDeletingAvatar && (
+                          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                      )}
+                      {isDeletingAvatar ? '삭제 중...' : '캐릭터 삭제'}
                     </button>
                   </div>
 
@@ -410,9 +446,13 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
                     />
                     <button
                         type="submit"
-                        className="rounded-lg bg-blue-500 py-2 text-sm font-semibold text-white hover:bg-blue-600"
+                        disabled={isUpdatingInfo}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
                     >
-                      정보 저장
+                      {isUpdatingInfo && (
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      )}
+                      {isUpdatingInfo ? '저장 중...' : '정보 저장'}
                     </button>
                   </form>
 
@@ -436,15 +476,23 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
                     </div>
                     <button
                         onClick={handleUpdateImage}
-                        className="rounded-lg bg-gray-800 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+                        disabled={isUpdatingImage || !profileImage}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-gray-800 py-2 text-sm font-semibold text-white hover:bg-gray-700 disabled:opacity-50"
                     >
-                      사진 변경 적용
+                      {isUpdatingImage && (
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      )}
+                      {isUpdatingImage ? '적용 중...' : '사진 변경 적용'}
                     </button>
                     <button
                         onClick={handleDeleteImage}
-                        className="rounded-lg border border-red-300 py-2 text-sm font-semibold text-red-500 hover:bg-red-50"
+                        disabled={isDeletingImage}
+                        className="flex items-center justify-center gap-2 rounded-lg border border-red-300 py-2 text-sm font-semibold text-red-500 hover:bg-red-50 disabled:opacity-50"
                     >
-                      프로필 사진 삭제
+                      {isDeletingImage && (
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                      )}
+                      {isDeletingImage ? '삭제 중...' : '프로필 사진 삭제'}
                     </button>
                   </div>
 

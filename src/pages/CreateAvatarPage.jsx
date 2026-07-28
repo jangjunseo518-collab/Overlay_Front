@@ -5,10 +5,13 @@ function CreateAvatarPage({ onSuccess, onClose }) {
   const [name, setName] = useState('')
   const [bio, setBio] = useState('')
   const [profileImage, setProfileImage] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const fileInputRef = useRef(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return
+    setIsSubmitting(true)
 
     const formData = new FormData()
     formData.append('name', name)
@@ -34,6 +37,8 @@ function CreateAvatarPage({ onSuccess, onClose }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -90,9 +95,13 @@ function CreateAvatarPage({ onSuccess, onClose }) {
 
             <button
                 type="submit"
-                className="mt-2 rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600"
+                disabled={isSubmitting}
+                className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
             >
-              만들기
+              {isSubmitting && (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              )}
+              {isSubmitting ? '만드는 중...' : '만들기'}
             </button>
           </form>
         </div>
