@@ -93,13 +93,13 @@ function CommentSection({ postId }) {
         )}
 
         <div className="mt-3 flex gap-2">
-          <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="댓글 달기..."
-              className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
-          />
+         <textarea
+             value={newComment}
+             onChange={(e) => setNewComment(e.target.value)}
+             placeholder="댓글 달기..."
+             rows={1}
+             className="flex-1 resize-none rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
+         />
           <button
               onClick={handleNewCommentSubmit}
               disabled={isSubmitting}

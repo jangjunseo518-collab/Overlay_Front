@@ -9,7 +9,9 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
   const [replyContent, setReplyContent] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(comment.content)
+
   const [isSubmittingReply, setIsSubmittingReply] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const myUserId = localStorage.getItem('userId')
   const isMine = String(comment.userId) === myUserId
@@ -45,31 +47,16 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
     }
   }
 
-  const handleReplySubmit = async () => {
-    if (!replyContent.trim() || isSubmittingReply) return
-
-    setIsSubmittingReply(true)
-    try {
-      await onReplySubmit(comment.commentId, replyContent)
-      setReplyContent('')
-      setShowReplyInput(false)
-      setShowReplies(true)
-    } finally {
-      setIsSubmittingReply(false)
-    }
-  }
-
   const handleUpdate = async () => {
-    if (!editContent.trim()) return
+    if (!editContent.trim() || isUpdating) return
+    setIsUpdating(true)
 
     try {
       const response = await authFetch(
           `${BASE_URL}/api/posts/comments/${comment.commentId}`,
           {
             method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content: editContent }),
           }
       )
@@ -85,6 +72,22 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleReplySubmit = async () => {
+    if (!replyContent.trim() || isSubmittingReply) return
+
+    setIsSubmittingReply(true)
+    try {
+      await onReplySubmit(comment.commentId, replyContent)
+      setReplyContent('')
+      setShowReplyInput(false)
+      setShowReplies(true)
+    } finally {
+      setIsSubmittingReply(false)
     }
   }
 
@@ -134,28 +137,31 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
             )}
 
             {isEditing && (
-                <div className="flex gap-2">
-                  <input
-                      type="text"
+                <div className="flex flex-col gap-2">
+                  <textarea
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
-                      className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
+                      rows={2}
+                      className="w-full resize-none rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
                   />
-                  <button
-                      onClick={handleUpdate}
-                      className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
-                  >
-                    저장
-                  </button>
-                  <button
-                      onClick={() => {
-                        setIsEditing(false)
-                        setEditContent(comment.content)
-                      }}
-                      className="text-sm text-gray-400 hover:text-gray-600"
-                  >
-                    취소
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                        onClick={handleUpdate}
+                        disabled={isUpdating}
+                        className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
+                    >
+                      {isUpdating ? '저장 중...' : '저장'}
+                    </button>
+                    <button
+                        onClick={() => {
+                          setIsEditing(false)
+                          setEditContent(comment.content)
+                        }}
+                        className="text-sm text-gray-400 hover:text-gray-600"
+                    >
+                      취소
+                    </button>
+                  </div>
                 </div>
             )}
 
@@ -204,12 +210,12 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
 
             {showReplyInput && (
                 <div className="mt-2 flex gap-2">
-                  <input
-                      type="text"
+                  <textarea
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
                       placeholder="답글 달기..."
-                      className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
+                      rows={1}
+                      className="flex-1 resize-none rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
                   />
                   <button
                       onClick={handleReplySubmit}
