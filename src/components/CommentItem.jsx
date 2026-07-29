@@ -136,15 +136,22 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
                 </p>
             )}
 
+            {!isEditing && (
+                <p className="text-sm">
+                  <span className="font-semibold text-gray-800">{comment.avatarName}</span>{' '}
+                  <span className="break-words text-gray-700">{comment.content}</span>
+                </p>
+            )}
+
             {isEditing && (
                 <div className="flex flex-col gap-2">
-                  <textarea
-                      value={editContent}
-                      onChange={(e) => setEditContent(e.target.value)}
-                      rows={2}
-                      className="w-full resize-none rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
-                  />
-                  <div className="flex gap-2">
+      <textarea
+          value={editContent}
+          onChange={(e) => setEditContent(e.target.value)}
+          rows={2}
+          className="w-full resize-none rounded-lg border border-gray-300 px-3 py-1.5 text-base outline-none focus:border-blue-500"
+      />
+                  <div className="flex justify-end gap-2">
                     <button
                         onClick={handleUpdate}
                         disabled={isUpdating}

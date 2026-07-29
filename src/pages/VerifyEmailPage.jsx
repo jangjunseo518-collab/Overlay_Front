@@ -4,6 +4,7 @@ import { BASE_URL } from '../utils/api'
 function VerifyEmailPage({ email, onVerifySuccess, onClose }) {
   const [code, setCode] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isResending, setIsResending] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -40,6 +41,31 @@ function VerifyEmailPage({ email, onVerifySuccess, onClose }) {
     }
   }
 
+  const handleResend = async () => {
+    if (isResending) return
+    setIsResending(true)
+
+    try {
+      const response = await fetch(
+          `${BASE_URL}/api/auth/resend-code?email=${encodeURIComponent(email)}`,
+          { method: 'POST' }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        alert(errorData.message)
+        return
+      }
+
+      alert('인증 코드를 다시 보냈습니다. 이메일을 확인해주세요.')
+    } catch (error) {
+      alert('오류가 발생했습니다.')
+      console.error(error)
+    } finally {
+      setIsResending(false)
+    }
+  }
+
   return (
       <div className="relative flex min-h-screen items-center justify-center bg-gray-50">
         <button
@@ -62,21 +88,32 @@ function VerifyEmailPage({ email, onVerifySuccess, onClose }) {
                 type="text"
                 placeholder="인증 코드 6자리"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setCode(e.target.value.replace(/\s/g, ''))}
                 maxLength={6}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-center text-lg tracking-widest outline-none focus:border-blue-500"
             />
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
             >
               {isSubmitting && (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               )}
-              {isSubmitting ? '인증 중...' : '인증하기'}
+              {isSubmitting ? '확인 중...' : '인증하기'}
             </button>
           </form>
+
+          <p className="mt-4 text-center text-sm text-gray-500">
+            코드를 받지 못하셨나요?{' '}
+            <button
+                onClick={handleResend}
+                disabled={isResending}
+                className="text-blue-500 hover:underline disabled:opacity-50"
+            >
+              {isResending ? '전송 중...' : '재발송'}
+            </button>
+          </p>
         </div>
       </div>
   )

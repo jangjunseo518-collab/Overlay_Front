@@ -61,6 +61,17 @@ function App() {
             />
         )}
 
+        {page === 'signup' && (
+            <SignUpPage
+                onSwitchToLogin={() => setPage('login')}
+                onClose={() => setPage('feed')}
+                onSignUpSuccess={(email) => {
+                  setSignUpEmail(email)
+                  setPage('verifyEmail')
+                }}
+            />
+        )}
+
         {page === 'login' && (
             <LoginPage
                 onSwitchToSignUp={() => setPage('signup')}
@@ -69,14 +80,7 @@ function App() {
                   setPage('feed')
                 }}
                 onClose={() => setPage('feed')}
-            />
-        )}
-
-        {page === 'signup' && (
-            <SignUpPage
-                onSwitchToLogin={() => setPage('login')}
-                onClose={() => setPage('feed')}
-                onSignUpSuccess={(email) => {
+                onNeedVerification={(email) => {
                   setSignUpEmail(email)
                   setPage('verifyEmail')
                 }}

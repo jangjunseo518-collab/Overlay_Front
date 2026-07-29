@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { BASE_URL } from '../utils/api'
 
-function LoginPage({ onSwitchToSignUp, onLoginSuccess, onClose }) {
+function LoginPage({ onSwitchToSignUp, onLoginSuccess, onClose, onNeedVerification }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -22,6 +22,14 @@ function LoginPage({ onSwitchToSignUp, onLoginSuccess, onClose }) {
 
       if (!response.ok) {
         const errorData = await response.json()
+
+        if (errorData.code === 'EMAIL_NOT_VERIFIED') {
+          if (window.confirm('이메일 인증이 완료되지 않았습니다. 인증 코드 입력 화면으로 이동할까요?')) {
+            onNeedVerification(email)
+          }
+          return
+        }
+
         alert(errorData.message)
         return
       }
