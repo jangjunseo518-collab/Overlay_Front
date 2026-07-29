@@ -29,6 +29,7 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
   const [isDeletingImage, setIsDeletingImage] = useState(false)
   const [isTogglingFollow, setIsTogglingFollow] = useState(false)
   const [isDeletingAvatar, setIsDeletingAvatar] = useState(false)
+  const [isSwitchingAvatar, setIsSwitchingAvatar] = useState(false)
 
   const myUserId = localStorage.getItem('userId')
 
@@ -222,12 +223,13 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
   }
 
   const handleSwitchAvatar = async (newAvatarId) => {
+    if (isSwitchingAvatar) return
+    setIsSwitchingAvatar(true)
+
     try {
       const response = await authFetch(
           `${BASE_URL}/api/users/me/active-avatar?avatarId=${newAvatarId}`,
-          {
-            method: 'PATCH',
-          }
+          { method: 'PATCH' }
       )
 
       if (!response.ok) {
@@ -242,6 +244,8 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
     } catch (error) {
       alert('오류가 발생했습니다.')
       console.error(error)
+    } finally {
+      setIsSwitchingAvatar(false)
     }
   }
 
@@ -403,7 +407,8 @@ function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
                             <button
                                 key={a.avatarId}
                                 onClick={() => handleSwitchAvatar(a.avatarId)}
-                                className="flex items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-gray-50"
+                                disabled={isSwitchingAvatar}
+                                className="flex items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-gray-50 disabled:opacity-50"
                             >
                               <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-200">
                                 {a.profileImageUrl && (
