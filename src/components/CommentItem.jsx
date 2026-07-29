@@ -130,17 +130,10 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
 
           <div className="min-w-0 flex-1">
             {!isEditing && (
-                <p className="text-sm">
-                  <span className="font-semibold text-gray-800">{comment.avatarName}</span>{' '}
-                  <span className="break-words text-gray-700">{comment.content}</span>
-                </p>
-            )}
-
-            {!isEditing && (
-                <p className="text-sm">
-                  <span className="font-semibold text-gray-800">{comment.avatarName}</span>{' '}
-                  <span className="break-words text-gray-700">{comment.content}</span>
-                </p>
+                <div className="text-sm">
+                  <p className="font-semibold text-gray-800">{comment.avatarName}</p>
+                  <p className="break-words text-gray-700">{comment.content}</p>
+                </div>
             )}
 
             {isEditing && (
