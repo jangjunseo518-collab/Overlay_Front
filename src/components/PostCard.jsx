@@ -16,6 +16,11 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
   const [isReporting, setIsReporting] = useState(false)
   const [isLiking, setIsLiking] = useState(false)
 
+  // 더보기 관련 상태
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [isTruncated, setIsTruncated] = useState(false)
+  const contentRef = useRef(null)
+
   const myUserId = localStorage.getItem('userId')
   const isMine = String(post.userId) === myUserId
 
@@ -28,6 +33,12 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setIsTruncated(contentRef.current.scrollHeight > contentRef.current.clientHeight)
+    }
+  }, [post.content])
 
   const handleToggleLike = async () => {
     const token = localStorage.getItem('accessToken')
@@ -197,7 +208,24 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
         )}
 
         <div className="p-4">
-          {!isEditing && <p className="break-words text-gray-800">{post.content}</p>}
+          {!isEditing && (
+              <div>
+                <p
+                    ref={contentRef}
+                    className={`break-words text-gray-800 ${!isExpanded ? 'line-clamp-4' : ''}`}
+                >
+                  {post.content}
+                </p>
+                {isTruncated && (
+                    <button
+                        onClick={() => setIsExpanded((prev) => !prev)}
+                        className="mt-1 text-sm text-gray-400 hover:text-gray-600"
+                    >
+                      {isExpanded ? '접기' : '더보기'}
+                    </button>
+                )}
+              </div>
+          )}
 
           {isEditing && (
               <div className="flex flex-col gap-2">

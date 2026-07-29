@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
@@ -12,10 +13,8 @@ import WorldListPage from './pages/WorldListPage'
 import TutorialModal from './components/TutorialModal'
 
 function App() {
-  const [page, setPage] = useState('feed')
+  const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('accessToken'))
-  const [selectedAvatarId, setSelectedAvatarId] = useState(null)
-  const [selectedWorldId, setSelectedWorldId] = useState(null)
   const [signUpEmail, setSignUpEmail] = useState('')
   const [showTutorial, setShowTutorial] = useState(false)
 
@@ -31,7 +30,7 @@ function App() {
     localStorage.removeItem('refreshToken')
     localStorage.removeItem('userId')
     setIsLoggedIn(false)
-    setPage('feed')
+    navigate('/')
   }
 
   return (
@@ -40,120 +39,135 @@ function App() {
             <TutorialModal onClose={() => setShowTutorial(false)} />
         )}
 
-        {page === 'feed' && (
-            <FeedPage
-                isLoggedIn={isLoggedIn}
-                onLoginClick={() => setPage('login')}
-                onCreateWorldClick={() => setPage('createWorld')}
-                onCreateAvatarClick={() => setPage('createAvatar')}
-                onCreatePostClick={() => setPage('createPost')}
-                onAvatarClick={(avatarId) => {
-                  setSelectedAvatarId(avatarId)
-                  setPage('avatarProfile')
-                }}
-                onLogoutClick={handleLogout}
-                onWorldClick={(worldId) => {
-                  setSelectedWorldId(worldId)
-                  setPage('worldFeed')
-                }}
-                onWorldListClick={() => setPage('worldList')}
-                onShowTutorial={() => setShowTutorial(true)}
-            />
-        )}
+        <Routes>
+          <Route
+              path="/"
+              element={
+                <FeedPage
+                    isLoggedIn={isLoggedIn}
+                    onLoginClick={() => navigate('/login')}
+                    onCreateWorldClick={() => navigate('/create-world')}
+                    onCreateAvatarClick={() => navigate('/create-avatar')}
+                    onCreatePostClick={() => navigate('/create-post')}
+                    onAvatarClick={(avatarId) => navigate(`/avatar/${avatarId}`)}
+                    onLogoutClick={handleLogout}
+                    onWorldClick={(worldId) => navigate(`/world/${worldId}`)}
+                    onWorldListClick={() => navigate('/worlds')}
+                    onShowTutorial={() => setShowTutorial(true)}
+                />
+              }
+          />
 
-        {page === 'signup' && (
-            <SignUpPage
-                onSwitchToLogin={() => setPage('login')}
-                onClose={() => setPage('feed')}
-                onSignUpSuccess={(email) => {
-                  setSignUpEmail(email)
-                  setPage('verifyEmail')
-                }}
-            />
-        )}
+          <Route
+              path="/login"
+              element={
+                <LoginPage
+                    onSwitchToSignUp={() => navigate('/signup')}
+                    onLoginSuccess={() => {
+                      setIsLoggedIn(true)
+                      navigate('/')
+                    }}
+                    onClose={() => navigate('/')}
+                    onNeedVerification={(email) => {
+                      setSignUpEmail(email)
+                      navigate('/verify')
+                    }}
+                />
+              }
+          />
 
-        {page === 'login' && (
-            <LoginPage
-                onSwitchToSignUp={() => setPage('signup')}
-                onLoginSuccess={() => {
-                  setIsLoggedIn(true)
-                  setPage('feed')
-                }}
-                onClose={() => setPage('feed')}
-                onNeedVerification={(email) => {
-                  setSignUpEmail(email)
-                  setPage('verifyEmail')
-                }}
-            />
-        )}
+          <Route
+              path="/signup"
+              element={
+                <SignUpPage
+                    onSwitchToLogin={() => navigate('/login')}
+                    onClose={() => navigate('/')}
+                    onSignUpSuccess={(email) => {
+                      setSignUpEmail(email)
+                      navigate('/verify')
+                    }}
+                />
+              }
+          />
 
-        {page === 'verifyEmail' && (
-            <VerifyEmailPage
-                email={signUpEmail}
-                onVerifySuccess={() => {
-                  setIsLoggedIn(true)
-                  setPage('feed')
-                }}
-                onClose={() => setPage('feed')}
-            />
-        )}
+          <Route
+              path="/verify"
+              element={
+                <VerifyEmailPage
+                    email={signUpEmail}
+                    onVerifySuccess={() => {
+                      setIsLoggedIn(true)
+                      navigate('/')
+                    }}
+                    onClose={() => navigate('/')}
+                />
+              }
+          />
 
-        {page === 'createWorld' && (
-            <CreateWorldPage
-                onSuccess={() => setPage('feed')}
-                onClose={() => setPage('feed')}
-            />
-        )}
+          <Route
+              path="/create-world"
+              element={
+                <CreateWorldPage
+                    onSuccess={() => navigate('/')}
+                    onClose={() => navigate('/')}
+                />
+              }
+          />
 
-        {page === 'createAvatar' && (
-            <CreateAvatarPage
-                onSuccess={() => setPage('feed')}
-                onClose={() => setPage('feed')}
-            />
-        )}
+          <Route
+              path="/create-avatar"
+              element={
+                <CreateAvatarPage
+                    onSuccess={() => navigate('/')}
+                    onClose={() => navigate('/')}
+                />
+              }
+          />
 
-        {page === 'createPost' && (
-            <CreatePostPage
-                onSuccess={() => setPage('feed')}
-                onClose={() => setPage('feed')}
-            />
-        )}
+          <Route
+              path="/create-post"
+              element={
+                <CreatePostPage
+                    onSuccess={() => navigate('/')}
+                    onClose={() => navigate('/')}
+                />
+              }
+          />
 
-        {page === 'avatarProfile' && (
-            <AvatarProfilePage
-                avatarId={selectedAvatarId}
-                onClose={() => setPage('feed')}
-                onSwitchAvatar={(newAvatarId) => setSelectedAvatarId(newAvatarId)}
-                onCreatePostClick={() => setPage('createPost')}
-                onWorldClick={(worldId) => {
-                  setSelectedWorldId(worldId)
-                  setPage('worldFeed')
-                }}
-                onAvatarClick={(avatarId) => setSelectedAvatarId(avatarId)}
-            />
-        )}
+          <Route
+              path="/avatar/:avatarId"
+              element={
+                <AvatarProfilePage
+                    onClose={() => navigate('/')}
+                    onSwitchAvatar={(newAvatarId) => navigate(`/avatar/${newAvatarId}`)}
+                    onCreatePostClick={() => navigate('/create-post')}
+                    onWorldClick={(worldId) => navigate(`/world/${worldId}`)}
+                    onAvatarClick={(avatarId) => navigate(`/avatar/${avatarId}`)}
+                />
+              }
+          />
 
-        {page === 'worldFeed' && (
-            <WorldFeedPage
-                worldId={selectedWorldId}
-                isLoggedIn={isLoggedIn}
-                onClose={() => setPage('feed')}
-                onAvatarClick={(avatarId) => {
-                  setSelectedAvatarId(avatarId)
-                  setPage('avatarProfile')
-                }}
-            />
-        )}
+          <Route
+              path="/world/:worldId"
+              element={
+                <WorldFeedPage
+                    isLoggedIn={isLoggedIn}
+                    onClose={() => navigate('/')}
+                    onAvatarClick={(avatarId) => navigate(`/avatar/${avatarId}`)}
+                />
+              }
+          />
 
-        {page === 'worldList' && (
-            <WorldListPage
-                onClose={() => setPage('feed')}
-                onWorldClick={(worldId) => {
-                  setSelectedWorldId(worldId)
-                  setPage('worldFeed')
-                }}
-            />
-        )}
+          <Route
+              path="/worlds"
+              element={
+                <WorldListPage
+                    onClose={() => navigate('/')}
+                    onWorldClick={(worldId) => navigate(`/world/${worldId}`)}
+                />
+              }
+          />
+        </Routes>
       </>
   )
 }

@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 import PostCard from '../components/PostCard'
 import AvatarListModal from '../components/AvatarListModal'
 import { authFetch, BASE_URL } from '../utils/api'
+import { useParams } from 'react-router-dom'
 
-function AvatarProfilePage({ avatarId, onClose, onSwitchAvatar,
+function AvatarProfilePage({ onClose, onSwitchAvatar,
   onCreatePostClick, onWorldClick, onAvatarClick }) {
+  const { avatarId } = useParams()
   const [avatar, setAvatar] = useState(null)
   const [posts, setPosts] = useState([])
   const [isEditing, setIsEditing] = useState(false)

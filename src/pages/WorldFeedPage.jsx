@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
+import { useParams } from 'react-router-dom'
 import PostCard from '../components/PostCard'
 import AvatarListModal from '../components/AvatarListModal'
 import { authFetch, BASE_URL } from '../utils/api'
 
-function WorldFeedPage({ worldId, isLoggedIn, onClose, onAvatarClick }) {
+function WorldFeedPage({ isLoggedIn, onClose, onAvatarClick }) {
+  const { worldId } = useParams()
   const [world, setWorld] = useState(null)
   const [posts, setPosts] = useState([])
   const fileInputRef = useRef(null)
