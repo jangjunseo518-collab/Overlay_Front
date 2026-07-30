@@ -21,6 +21,14 @@ function CommentSection({ postId }) {
 
   useEffect(() => {
     loadComments()
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        loadComments()
+      }
+    }, 10000)
+
+    return () => clearInterval(interval)
   }, [postId])
 
   const postComment = async (parentCommentId, content) => {

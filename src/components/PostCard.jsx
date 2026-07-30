@@ -30,6 +30,21 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
   const isMine = String(post.userId) === myUserId
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetch(`${BASE_URL}/api/posts/${post.postId}/likes`)
+        .then((res) => res.json())
+        .then((data) => {
+          setLikeCount(data.length)
+        })
+        .catch((err) => console.error(err))
+      }
+    }, 10000)
+
+    return () => clearInterval(interval)
+  }, [post.postId])
+
+  useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setIsMenuOpen(false)
