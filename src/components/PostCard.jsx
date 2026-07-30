@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import CommentSection from './CommentSection'
+import AvatarListModal from './AvatarListModal'
 import { authFetch, BASE_URL } from '../utils/api'
 
 function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, onPostChanged }) {
@@ -21,6 +22,10 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
   const [isTruncated, setIsTruncated] = useState(false)
   const contentRef = useRef(null)
 
+  // 좋아요 목록 관련 상태
+  const [showLikedList, setShowLikedList] = useState(false)
+  const [likedAvatars, setLikedAvatars] = useState([])
+
   const myUserId = localStorage.getItem('userId')
   const isMine = String(post.userId) === myUserId
 
@@ -39,6 +44,13 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
       setIsTruncated(contentRef.current.scrollHeight > contentRef.current.clientHeight)
     }
   }, [post.content])
+
+  const loadLikedAvatars = () => {
+    fetch(`${BASE_URL}/api/posts/${post.postId}/likes`)
+    .then((res) => res.json())
+    .then((data) => setLikedAvatars(data))
+    .catch((err) => console.error(err))
+  }
 
   const handleToggleLike = async () => {
     const token = localStorage.getItem('accessToken')
@@ -181,7 +193,7 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
         </span>
         )}
 
-        <div className="flex items-center gap-3 px-4 py-3">
+        <div className="flex items-center gap-3 bg-gray-50 border-b border-gray-100 px-4 py-3">
           <div
               className="flex cursor-pointer items-center gap-3"
               onClick={() => onAvatarClick(post.characterId)}
@@ -260,12 +272,22 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
           )}
 
           <div className="mt-3 flex items-center justify-between">
-            <button onClick={handleToggleLike} disabled={isLiking} className="flex items-center gap-1.5 text-sm">
-            <span className={liked ? 'text-red-500' : 'text-gray-400'}>
-              {liked ? '♥' : '♡'}
-            </span>
-              <span className="text-gray-500">{likeCount}</span>
-            </button>
+            <div className="flex items-center gap-1.5 text-sm">
+              <button onClick={handleToggleLike} disabled={isLiking}>
+                <span className={liked ? 'text-red-500' : 'text-gray-400'}>
+                  {liked ? '♥' : '♡'}
+                </span>
+              </button>
+              <button
+                  onClick={() => {
+                    loadLikedAvatars()
+                    setShowLikedList(true)
+                  }}
+                  className="text-gray-500 hover:underline"
+              >
+                {likeCount}
+              </button>
+            </div>
 
             {!isEditing && (
                 <div className="relative" ref={menuRef}>
@@ -322,6 +344,15 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
         </div>
 
         <CommentSection postId={post.postId} />
+
+        {showLikedList && (
+            <AvatarListModal
+                title="좋아요"
+                avatars={likedAvatars}
+                onClose={() => setShowLikedList(false)}
+                onAvatarClick={onAvatarClick}
+            />
+        )}
       </div>
   )
 }
