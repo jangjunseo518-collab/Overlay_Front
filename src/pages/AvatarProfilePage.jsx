@@ -1,12 +1,16 @@
-import { useState, useEffect, useRef } from 'react'
+import {useState, useEffect, useRef} from 'react'
 import PostCard from '../components/PostCard'
 import AvatarListModal from '../components/AvatarListModal'
-import { authFetch, BASE_URL } from '../utils/api'
-import { useParams } from 'react-router-dom'
+import {authFetch, BASE_URL} from '../utils/api'
+import {useParams} from 'react-router-dom'
+import FloatingActionMenu from '../components/FloatingActionMenu'
 
-function AvatarProfilePage({ onClose, onSwitchAvatar,
-  onCreatePostClick, onWorldClick, onAvatarClick }) {
-  const { avatarId } = useParams()
+function AvatarProfilePage({
+  onClose, onSwitchAvatar,
+  onCreatePostClick, onWorldClick, onAvatarClick,
+  onCreateAvatarClick, onCreateWorldClick, onWorldListClick
+}) {
+  const {avatarId} = useParams()
   const [avatar, setAvatar] = useState(null)
   const [posts, setPosts] = useState([])
   const [isEditing, setIsEditing] = useState(false)
@@ -53,7 +57,7 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
     const token = localStorage.getItem('accessToken')
 
     fetch(`${BASE_URL}/api/avatars/${avatarId}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: token ? {Authorization: `Bearer ${token}`} : {},
     })
     .then((res) => res.json())
     .then((data) => {
@@ -86,7 +90,9 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
     authFetch(`${BASE_URL}/api/users/me/active-avatar`)
     .then((res) => (res.ok ? res.json() : null))
     .then((data) => {
-      if (data) setActiveAvatarId(data.avatarId)
+      if (data) {
+        setActiveAvatarId(data.avatarId)
+      }
     })
     .catch((err) => console.error(err))
   }
@@ -101,7 +107,9 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
 
   const handleUpdateInfo = async (e) => {
     e.preventDefault()
-    if (isUpdatingInfo) return
+    if (isUpdatingInfo) {
+      return
+    }
     setIsUpdatingInfo(true)
 
     try {
@@ -110,7 +118,7 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, bio }),
+        body: JSON.stringify({name, bio}),
       })
 
       if (!response.ok) {
@@ -131,14 +139,19 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
   }
 
   const handleDeleteImage = async () => {
-    if (isDeletingImage) return
-    if (!window.confirm('프로필 이미지를 삭제하시겠습니까?')) return
+    if (isDeletingImage) {
+      return
+    }
+    if (!window.confirm('프로필 이미지를 삭제하시겠습니까?')) {
+      return
+    }
 
     setIsDeletingImage(true)
     try {
-      const response = await authFetch(`${BASE_URL}/api/avatars/${avatarId}/image`, {
-        method: 'DELETE',
-      })
+      const response = await authFetch(
+          `${BASE_URL}/api/avatars/${avatarId}/image`, {
+            method: 'DELETE',
+          })
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -164,7 +177,9 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
       return
     }
 
-    if (isTogglingFollow) return
+    if (isTogglingFollow) {
+      return
+    }
     setIsTogglingFollow(true)
 
     try {
@@ -191,8 +206,12 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
   }
 
   const handleUpdateImage = async () => {
-    if (!profileImage) return
-    if (isUpdatingImage) return
+    if (!profileImage) {
+      return
+    }
+    if (isUpdatingImage) {
+      return
+    }
     setIsUpdatingImage(true)
 
     const formData = new FormData()
@@ -225,13 +244,15 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
   }
 
   const handleSwitchAvatar = async (newAvatarId) => {
-    if (isSwitchingAvatar) return
+    if (isSwitchingAvatar) {
+      return
+    }
     setIsSwitchingAvatar(true)
 
     try {
       const response = await authFetch(
           `${BASE_URL}/api/users/me/active-avatar?avatarId=${newAvatarId}`,
-          { method: 'PATCH' }
+          {method: 'PATCH'}
       )
 
       if (!response.ok) {
@@ -252,8 +273,12 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
   }
 
   const handleDeleteAvatar = async () => {
-    if (isDeletingAvatar) return
-    if (!window.confirm('이 캐릭터를 삭제하시겠습니까? 작성한 게시글도 함께 삭제됩니다.')) return
+    if (isDeletingAvatar) {
+      return
+    }
+    if (!window.confirm('이 캐릭터를 삭제하시겠습니까? 작성한 게시글도 함께 삭제됩니다.')) {
+      return
+    }
 
     setIsDeletingAvatar(true)
     try {
@@ -300,7 +325,7 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                       className="h-20 w-20 shrink-0 rounded-full object-cover"
                   />
               ) : (
-                  <div className="h-20 w-20 shrink-0 rounded-full bg-gray-200" />
+                  <div className="h-20 w-20 shrink-0 rounded-full bg-gray-200"/>
               )}
 
               <div className="min-w-0 flex-1">
@@ -329,7 +354,8 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                   {avatar.bio}
                 </p>
 
-                <div className="mt-2 flex items-center gap-3 text-sm text-gray-500">
+                <div
+                    className="mt-2 flex items-center gap-3 text-sm text-gray-500">
                   <button
                       onClick={() => {
                         loadFollowers()
@@ -361,7 +387,8 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                         }`}
                     >
                       {isTogglingFollow && (
-                          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          <span
+                              className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent"/>
                       )}
                       {avatar.isFollowing ? '팔로잉' : '팔로우'}
                     </button>
@@ -383,7 +410,9 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                         <button
                             onClick={() => {
                               setShowAvatarSwitch((prev) => !prev)
-                              if (!showAvatarSwitch) loadMyAvatars()
+                              if (!showAvatarSwitch) {
+                                loadMyAvatars()
+                              }
                             }}
                             className="rounded-lg border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
@@ -397,14 +426,16 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                         className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 px-4 py-1.5 text-sm font-medium text-red-500 hover:bg-red-50 disabled:opacity-50"
                     >
                       {isDeletingAvatar && (
-                          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                          <span
+                              className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-red-500 border-t-transparent"/>
                       )}
                       {isDeletingAvatar ? '삭제 중...' : '캐릭터 삭제'}
                     </button>
                   </div>
 
                   {showAvatarSwitch && (
-                      <div className="flex flex-col gap-1 rounded-lg border border-gray-200 bg-white p-2 shadow-sm">
+                      <div
+                          className="flex flex-col gap-1 rounded-lg border border-gray-200 bg-white p-2 shadow-sm">
                         {myAvatars.map((a) => (
                             <button
                                 key={a.avatarId}
@@ -412,7 +443,8 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                                 disabled={isSwitchingAvatar}
                                 className="flex items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-gray-50 disabled:opacity-50"
                             >
-                              <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-200">
+                              <div
+                                  className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-200">
                                 {a.profileImageUrl && (
                                     <img
                                         src={a.profileImageUrl}
@@ -437,8 +469,10 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
             )}
 
             {isMine && isEditing && (
-                <div className="mt-4 flex flex-col gap-3 border-t border-gray-200 pt-4">
-                  <form onSubmit={handleUpdateInfo} className="flex flex-col gap-2">
+                <div
+                    className="mt-4 flex flex-col gap-3 border-t border-gray-200 pt-4">
+                  <form onSubmit={handleUpdateInfo}
+                        className="flex flex-col gap-2">
                     <input
                         type="text"
                         value={name}
@@ -457,7 +491,8 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                         className="flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50"
                     >
                       {isUpdatingInfo && (
-                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          <span
+                              className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"/>
                       )}
                       {isUpdatingInfo ? '저장 중...' : '정보 저장'}
                     </button>
@@ -478,7 +513,8 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                         onChange={(e) => setProfileImage(e.target.files[0])}
                         className="hidden"
                     />
-                    <div className="rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-500">
+                    <div
+                        className="rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-500">
                       {profileImage ? profileImage.name : '선택한 파일 없음'}
                     </div>
                     <button
@@ -487,7 +523,8 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                         className="flex items-center justify-center gap-2 rounded-lg bg-gray-800 py-2 text-sm font-semibold text-white hover:bg-gray-700 disabled:opacity-50"
                     >
                       {isUpdatingImage && (
-                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          <span
+                              className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"/>
                       )}
                       {isUpdatingImage ? '적용 중...' : '사진 변경 적용'}
                     </button>
@@ -497,7 +534,8 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                         className="flex items-center justify-center gap-2 rounded-lg border border-red-300 py-2 text-sm font-semibold text-red-500 hover:bg-red-50 disabled:opacity-50"
                     >
                       {isDeletingImage && (
-                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                          <span
+                              className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent"/>
                       )}
                       {isDeletingImage ? '삭제 중...' : '프로필 사진 삭제'}
                     </button>
@@ -518,12 +556,34 @@ function AvatarProfilePage({ onClose, onSwitchAvatar,
                 <PostCard
                     key={post.postId}
                     post={post}
+                    onAvatarClick={() => {
+                    }}
+                    onWorldClick={onWorldClick}
+                    showWorldBadge={true}
+                    onPostChanged={loadPosts}
+                />
+            ))}
+          </div>
+          <div className="mt-6 flex flex-col gap-4">
+            {posts.map((post) => (
+                <PostCard
+                    key={post.postId}
+                    post={post}
                     onAvatarClick={() => {}}
                     onWorldClick={onWorldClick}
                     showWorldBadge={true}
                     onPostChanged={loadPosts}
                 />
             ))}
+          </div>
+
+          <div className="sticky bottom-16 flex justify-end pr-2">
+            <FloatingActionMenu
+                onCreateAvatarClick={onCreateAvatarClick}
+                onCreateWorldClick={onCreateWorldClick}
+                onCreatePostClick={onCreatePostClick}
+                onWorldListClick={onWorldListClick}
+            />
           </div>
         </div>
 

@@ -143,6 +143,9 @@ function App() {
                     onCreatePostClick={() => navigate('/create-post')}
                     onWorldClick={(worldId) => navigate(`/world/${worldId}`)}
                     onAvatarClick={(avatarId) => navigate(`/avatar/${avatarId}`)}
+                    onCreateAvatarClick={() => navigate('/create-avatar')}
+                    onCreateWorldClick={() => navigate('/create-world')}
+                    onWorldListClick={() => navigate('/worlds')}
                 />
               }
           />
@@ -154,6 +157,10 @@ function App() {
                     isLoggedIn={isLoggedIn}
                     onClose={() => navigate('/')}
                     onAvatarClick={(avatarId) => navigate(`/avatar/${avatarId}`)}
+                    onCreatePostClick={() => navigate('/create-post')}
+                    onCreateAvatarClick={() => navigate('/create-avatar')}
+                    onCreateWorldClick={() => navigate('/create-world')}
+                    onWorldListClick={() => navigate('/worlds')}
                 />
               }
           />

@@ -3,8 +3,10 @@ import { useParams } from 'react-router-dom'
 import PostCard from '../components/PostCard'
 import AvatarListModal from '../components/AvatarListModal'
 import { authFetch, BASE_URL } from '../utils/api'
+import FloatingActionMenu from '../components/FloatingActionMenu'
 
-function WorldFeedPage({ isLoggedIn, onClose, onAvatarClick }) {
+function WorldFeedPage({ isLoggedIn, onClose, onAvatarClick,
+  onCreatePostClick, onCreateAvatarClick, onCreateWorldClick, onWorldListClick }) {
   const { worldId } = useParams()
   const [world, setWorld] = useState(null)
   const [posts, setPosts] = useState([])
@@ -423,6 +425,15 @@ function WorldFeedPage({ isLoggedIn, onClose, onAvatarClick }) {
                 />
             ))}
           </div>
+
+          <div className="sticky bottom-16 flex justify-end pr-2">
+            <FloatingActionMenu
+                onCreateAvatarClick={onCreateAvatarClick}
+                onCreateWorldClick={onCreateWorldClick}
+                onCreatePostClick={onCreatePostClick}
+                onWorldListClick={onWorldListClick}
+            />
+          </div>
         </div>
         {showResidents && (
             <AvatarListModal
@@ -432,7 +443,8 @@ function WorldFeedPage({ isLoggedIn, onClose, onAvatarClick }) {
                 onAvatarClick={onAvatarClick}
             />
         )}
-      </div>
+
+       </div>
   )
 }
 
