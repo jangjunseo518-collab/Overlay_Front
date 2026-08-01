@@ -432,6 +432,7 @@ function WorldFeedPage({ isLoggedIn, onClose, onAvatarClick,
                 onCreateWorldClick={onCreateWorldClick}
                 onCreatePostClick={onCreatePostClick}
                 onWorldListClick={onWorldListClick}
+                onAvatarClick={onAvatarClick}
             />
           </div>
         </div>

@@ -1,8 +1,26 @@
 import { useState, useRef, useEffect } from 'react'
+import { authFetch, BASE_URL } from '../utils/api'
+import AvatarListModal from './AvatarListModal'
 
-function FloatingActionMenu({ onCreateAvatarClick, onCreateWorldClick, onCreatePostClick, onWorldListClick }) {
+function FloatingActionMenu({
+  onCreateAvatarClick, onCreateWorldClick, onCreatePostClick,
+  onWorldListClick, onAvatarClick
+}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [myAvatars, setMyAvatars] = useState([])
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+  const [isSwitchingAvatar, setIsSwitchingAvatar] = useState(false)
   const menuRef = useRef(null)
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    if (!token) return
+
+    authFetch(`${BASE_URL}/api/avatars/me`)
+    .then((res) => (res.ok ? res.json() : []))
+    .then((data) => setMyAvatars(data || []))
+    .catch((err) => console.error(err))
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -14,6 +32,32 @@ function FloatingActionMenu({ onCreateAvatarClick, onCreateWorldClick, onCreateP
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const handleSwitchAvatar = async (avatarId) => {
+    if (isSwitchingAvatar) return
+    setIsSwitchingAvatar(true)
+
+    try {
+      const response = await authFetch(
+          `${BASE_URL}/api/users/me/active-avatar?avatarId=${avatarId}`,
+          { method: 'PATCH' }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        alert(errorData.message)
+        return
+      }
+
+      alert('캐릭터가 전환되었습니다.')
+      if (onAvatarClick) onAvatarClick(avatarId)
+    } catch (error) {
+      alert('오류가 발생했습니다.')
+      console.error(error)
+    } finally {
+      setIsSwitchingAvatar(false)
+    }
+  }
+
   return (
       <div className="relative z-50" ref={menuRef}>
         <div
@@ -23,12 +67,25 @@ function FloatingActionMenu({ onCreateAvatarClick, onCreateWorldClick, onCreateP
                     : 'pointer-events-none translate-y-4 scale-95 opacity-0'
             }`}
         >
+          {myAvatars.length > 0 && (
+              <button
+                  onClick={() => {
+                    setIsMenuOpen(false)
+                    setShowAvatarPicker(true)
+                  }}
+                  className="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
+              >
+                캐릭터 선택
+              </button>
+          )}
           <button
               onClick={() => {
                 setIsMenuOpen(false)
                 onCreateAvatarClick()
               }}
-              className="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
+              className={`block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 ${
+                  myAvatars.length > 0 ? 'border-t border-gray-100' : ''
+              }`}
           >
             캐릭터 만들기
           </button>
@@ -37,7 +94,7 @@ function FloatingActionMenu({ onCreateAvatarClick, onCreateWorldClick, onCreateP
                 setIsMenuOpen(false)
                 onCreateWorldClick()
               }}
-              className="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
+              className="block w-full border-t border-gray-100 px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
           >
             세계관 만들기
           </button>
@@ -46,7 +103,7 @@ function FloatingActionMenu({ onCreateAvatarClick, onCreateWorldClick, onCreateP
                 setIsMenuOpen(false)
                 onCreatePostClick()
               }}
-              className="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
+              className="block w-full border-t border-gray-100 px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
           >
             포스트 작성
           </button>
@@ -72,6 +129,15 @@ function FloatingActionMenu({ onCreateAvatarClick, onCreateWorldClick, onCreateP
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         </button>
+
+        {showAvatarPicker && (
+            <AvatarListModal
+                title="캐릭터 선택"
+                avatars={myAvatars}
+                onClose={() => setShowAvatarPicker(false)}
+                onAvatarClick={handleSwitchAvatar}
+            />
+        )}
       </div>
   )
 }

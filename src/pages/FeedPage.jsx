@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import PostCard from '../components/PostCard'
 import DeleteAccountModal from '../components/DeleteAccountModal'
+import AvatarListModal from '../components/AvatarListModal'
 import { authFetch, BASE_URL } from '../utils/api'
 
 function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
@@ -11,6 +12,9 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
   const menuRef = useRef(null)
   const [myActiveAvatar, setMyActiveAvatar] = useState(null)
   const [myActiveWorld, setMyActiveWorld] = useState(null)
+  const [myAvatars, setMyAvatars] = useState([])
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+  const [isSwitchingAvatar, setIsSwitchingAvatar] = useState(false)
   const [showDeleteAccount, setShowDeleteAccount] = useState(false)
   const [page, setPage] = useState(0)
   const [hasMore, setHasMore] = useState(true)
@@ -61,8 +65,14 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
     if (!isLoggedIn) {
       setMyActiveAvatar(null)
       setMyActiveWorld(null)
+      setMyAvatars([])
       return
     }
+
+    authFetch(`${BASE_URL}/api/avatars/me`)
+    .then((res) => (res.ok ? res.json() : []))
+    .then((data) => setMyAvatars(data || []))
+    .catch((err) => console.error(err))
 
     authFetch(`${BASE_URL}/api/users/me/active-avatar`)
     .then((res) => (res.ok ? res.json() : null))
@@ -118,6 +128,33 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
       onLoginClick()
     }
     setIsMenuOpen(false)
+  }
+
+  const handleSwitchAvatar = async (avatarId) => {
+    if (isSwitchingAvatar) return
+    setIsSwitchingAvatar(true)
+
+    try {
+      const response = await authFetch(
+          `${BASE_URL}/api/users/me/active-avatar?avatarId=${avatarId}`,
+          { method: 'PATCH' }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        alert(errorData.message)
+        return
+      }
+
+      alert('캐릭터가 전환되었습니다.')
+      setShowAvatarPicker(false)
+      onAvatarClick(avatarId)
+    } catch (error) {
+      alert('오류가 발생했습니다.')
+      console.error(error)
+    } finally {
+      setIsSwitchingAvatar(false)
+    }
   }
 
   const handleShowNewPosts = () => {
@@ -199,6 +236,17 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
                             : 'pointer-events-none -translate-y-4 scale-95 opacity-0'
                     }`}
                 >
+                  {isLoggedIn && myAvatars.length > 0 && (
+                      <button
+                          onClick={() => {
+                            setIsMenuOpen(false)
+                            setShowAvatarPicker(true)
+                          }}
+                          className="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        캐릭터 선택
+                      </button>
+                  )}
                   <button
                       onClick={() => requireLogin(onCreateWorldClick)}
                       className="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
@@ -295,6 +343,15 @@ function FeedPage({ isLoggedIn, onLoginClick, onCreateWorldClick,
 
         {showDeleteAccount && (
             <DeleteAccountModal onClose={() => setShowDeleteAccount(false)} />
+        )}
+
+        {showAvatarPicker && (
+            <AvatarListModal
+                title="캐릭터 선택"
+                avatars={myAvatars}
+                onClose={() => setShowAvatarPicker(false)}
+                onAvatarClick={handleSwitchAvatar}
+            />
         )}
       </div>
   )
