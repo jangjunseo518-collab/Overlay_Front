@@ -239,7 +239,7 @@ function PostCard({ post, onAvatarClick, onWorldClick, showWorldBadge = true, on
               <div>
                 <p
                     ref={contentRef}
-                    className={`break-words text-gray-800 ${!isExpanded ? 'line-clamp-4' : ''}`}
+                    className={`whitespace-pre-wrap break-words text-gray-800 ${!isExpanded ? 'line-clamp-4' : ''}`}
                 >
                   {post.content}
                 </p>

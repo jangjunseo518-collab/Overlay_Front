@@ -556,19 +556,6 @@ function AvatarProfilePage({
                 <PostCard
                     key={post.postId}
                     post={post}
-                    onAvatarClick={() => {
-                    }}
-                    onWorldClick={onWorldClick}
-                    showWorldBadge={true}
-                    onPostChanged={loadPosts}
-                />
-            ))}
-          </div>
-          <div className="mt-6 flex flex-col gap-4">
-            {posts.map((post) => (
-                <PostCard
-                    key={post.postId}
-                    post={post}
                     onAvatarClick={() => {}}
                     onWorldClick={onWorldClick}
                     showWorldBadge={true}

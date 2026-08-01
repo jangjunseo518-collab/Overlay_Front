@@ -132,7 +132,7 @@ function CommentItem({ comment, isReply, onReplySubmit, onCommentChanged }) {
             {!isEditing && (
                 <div className="text-sm">
                   <p className="font-semibold text-gray-800">{comment.avatarName}</p>
-                  <p className="break-words text-gray-700">{comment.content}</p>
+                  <p className="whitespace-pre-wrap break-words text-gray-700">{comment.content}</p>
                 </div>
             )}
 
